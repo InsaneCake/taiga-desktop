@@ -23,6 +23,7 @@ export default {
   margin-top: 60px;
 }
 html {
-  background: #121920;
+  background: var(--va-appbackground);
+  overflow-y: hidden;
 }
 </style>
