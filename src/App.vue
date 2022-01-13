@@ -1,15 +1,14 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo-color.png">
-  <HelloWorld msg="Welcome to future Taiga Desktop App" submsg="Vue3 + Electron16"/>
+  <login/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Login from './components/Login.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Login
   }
 }
 </script>
@@ -20,7 +19,10 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: rgb(223, 223, 223);
   margin-top: 60px;
+}
+html {
+  background: #121920;
 }
 </style>
