@@ -49,46 +49,15 @@ import axios from "axios";
 export default {
   data() {
     return {
-      username: "test",
-      password: "test",
+      username: "",
+      password: "",
       server_address: "tree.taiga.io",
-      https: true,
+      https: false,
       info: "",
-      user_authentication_detail:{
-        accepted_terms: true,
-        auth_token: "",
-        big_photo: null,
-        bio: "",
-        color: "",
-        date_joined: "",
-        email: "",
-        full_name: "",
-        full_name_display: "",
-        gravatar_id: "",
-        id: 0,
-        is_active: true,
-        lang: "",
-        max_memberships_private_projects: null,
-        max_memberships_public_projects: null,
-        max_private_projects: null,
-        max_public_projects: null,
-        photo: null,
-        read_new_terms: false,
-        refresh: "",
-        roles: [
-          "Front"
-        ],
-        theme: "",
-        timezone: "",
-        total_private_projects: 0,
-        total_public_projects: 0,
-        username: "",
-        uuid: ""
-      }
     };
   },
   computed: {
-    getfrom() {
+    api_url() {
       return `${this.https ? 'https://' : 'http://'}${this.server_address}/api/v1`
     },
     is_login_button_disabled: function () {
@@ -106,23 +75,61 @@ export default {
   },
   methods: {
     handleSubmit() {
-      console.log(this.getfrom+'/auth')
+      localStorage.setItem('last_server', this.server_address)
+      localStorage.setItem('last_username', this.username)
+      localStorage.setItem('use_https', this.https)
+      console.log(this.api_url+'/auth')
       axios
-        .post(this.getfrom+'/auth', {
-            "password": this.password,
-            "type": "normal",
-            "username": this.username
+        .post(this.api_url+'/auth', {
+          'password': this.password,
+            'type': 'normal',
+            'username': this.username
           },{
-            headers: {
-              "Content-Type": "application/json"
-            }
+            headers: { 'Content-Type': 'application/json' }
           })
         .then((response) => (
-          console.log(response)
-        ));
+          this.handleAuthResponse(response)
+        ))
+    },
+    handleAuthResponse(response) {
+      if (response.status == 200) {
+        this.$store.commit('setUserAuthData', response.data)
+        this.$cookies.set('api_url', this.api_url)
+        this.$cookies.set('auth_token', response.data.auth_token, '30d')
+        this.$cookies.set('refresh_token', response.data.refresh, '30d')
+        this.$router.push({ name: 'Dashboard' })
+      } else {
+        console.log('error'+response.status);
+      }
+    },
+    handleUserDataRestore(response) {
+      if (response.status == 200) {
+        this.$store.commit('setUserData', response.data)
+        localStorage.setItem('api_url', this.api_url)
+        this.$router.push({ name: 'Dashboard' })
+      } else {
+        console.log('error'+response.status);
+      }
     },
   },
-  mounted() {},
+  created() {
+    this.server_address = localStorage.getItem("last_server")
+    this.username = localStorage.getItem("last_username")
+    this.https = localStorage.getItem("use_https") === 'true'
+    if (this.$cookies.get("auth_token") != undefined) {
+      axios
+        .get(this.api_url+'/users/me',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + this.$cookies.get("auth_token")
+            }
+          }
+        )
+        .then((response) => (this.handleUserDataRestore(response)))
+    }
+    console.log("restoring last data");
+  },
 };
 </script>
 

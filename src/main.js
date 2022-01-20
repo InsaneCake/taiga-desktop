@@ -8,6 +8,9 @@ import 'vuestic-ui/dist/vuestic-ui.css'
 import '@mdi/font/css/materialdesignicons.css'
 
 import router from './router'
+import store from './store'
+
+import VueCookies from 'vue3-cookies'
 
 const aliases = []
 
@@ -20,8 +23,9 @@ const fonts = [
     },
 ]
 
-createApp(App)
+createApp(App).use(store)
 .use(router)
+.use(VueCookies)
 .use(VuesticPlugin,
     {
             icons: createIconsConfig({ aliases, fonts }),
