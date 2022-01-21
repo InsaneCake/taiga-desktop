@@ -113,8 +113,8 @@ export default {
     },
   },
   created() {
-    this.server_address = localStorage.getItem("last_server")
-    this.username = localStorage.getItem("last_username")
+    this.server_address = localStorage.getItem("last_server")  == null ? "" : localStorage.getItem("last_server")
+    this.username = localStorage.getItem("last_username") == null ? "" : localStorage.getItem("last_username")
     this.https = localStorage.getItem("use_https") === 'true'
     if (this.$cookies.get("auth_token") != undefined) {
       axios

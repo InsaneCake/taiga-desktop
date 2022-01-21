@@ -107,7 +107,7 @@ export default {
       return this.$cookies.get("auth_token")
     },
     apiURL() {
-      return localStorage.getItem("api_url")
+      return this.$cookies.get('api_url')
     },
   },
   created() {
