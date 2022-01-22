@@ -45,6 +45,7 @@
 
 <script>
 import axios from "axios";
+import cookies from "js-cookie";
 
 export default {
   data() {
@@ -93,10 +94,10 @@ export default {
     },
     handleAuthResponse(response) {
       if (response.status == 200) {
-        this.$store.commit('setUserAuthData', response.data)
-        this.$cookies.set('api_url', this.api_url)
-        this.$cookies.set('auth_token', response.data.auth_token, '30d')
-        this.$cookies.set('refresh_token', response.data.refresh, '30d')
+        this.$store.commit('setUserData', response.data)
+        cookies.set('api_url', this.api_url, { expires: 30 })
+        cookies.set('auth_token', response.data.auth_token, { expires: 30 })
+        cookies.set('refresh_token', response.data.refresh, { expires: 30 })
         this.$router.push({ name: 'Dashboard' })
       } else {
         console.log('error'+response.status);
@@ -116,19 +117,6 @@ export default {
     this.server_address = localStorage.getItem("last_server")  == null ? "" : localStorage.getItem("last_server")
     this.username = localStorage.getItem("last_username") == null ? "" : localStorage.getItem("last_username")
     this.https = localStorage.getItem("use_https") === 'true'
-    if (this.$cookies.get("auth_token") != undefined) {
-      axios
-        .get(this.api_url+'/users/me',
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + this.$cookies.get("auth_token")
-            }
-          }
-        )
-        .then((response) => (this.handleUserDataRestore(response)))
-    }
-    console.log("restoring last data");
   },
 };
 </script>

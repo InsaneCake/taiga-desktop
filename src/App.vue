@@ -4,11 +4,38 @@
 </template>
 
 <script>
+import cookies from 'js-cookie'
+import axios from 'axios'
+
 import Appbar from './components/Appbar.vue'
 
 export default {
   components: {
     Appbar
+  },
+  methods: {
+    restoreUserData() {
+      axios
+        .get(cookies.get('api_url')+'/users/me',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + cookies.get("auth_token")
+            }
+          }
+        )
+        .then((response) => (
+          this.$store.commit('setUserData', response.data),
+          this.$router.push({ name: 'Dashboard' })
+        ))
+    },
+  },
+  created() {
+    if (cookies.get("auth_token") != undefined) {
+      this.restoreUserData();
+    } else {
+      this.$router.push({ name: 'Login' })
+    }
   }
 }
 </script>
@@ -20,6 +47,9 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: var(--va-font);
+  min-height: 100vh;
+  background: url("./assets/bg-3.png");
+  background-position: center;
 }
 
 #nav {

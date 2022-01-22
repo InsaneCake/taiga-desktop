@@ -10,8 +10,6 @@ import '@mdi/font/css/materialdesignicons.css'
 import router from './router'
 import store from './store'
 
-import VueCookies from 'vue3-cookies'
-
 const aliases = []
 
 const fonts = [
@@ -23,9 +21,9 @@ const fonts = [
     },
 ]
 
-createApp(App).use(store)
+createApp(App)
+.use(store)
 .use(router)
-.use(VueCookies)
 .use(VuesticPlugin,
     {
             icons: createIconsConfig({ aliases, fonts }),
@@ -39,7 +37,7 @@ createApp(App).use(store)
             colors: {
                 primary: '#52B69A',
                 secondary: '#767C88',
-                background: '#3F4D64',
+                background: '#232A3E',
                 success: '#40e583',
                 info: '#2c82e0',
                 danger: '#DE1041',
@@ -50,7 +48,8 @@ createApp(App).use(store)
 
                 accent: '#EE6C4D',
                 appbackground: '#293241',
-                appbar: '#294251',
+                appbar: '#232A3E',
+                appbartrans: '#232A3Ecc',
                 font: '#ffffffee',
                 fontlowcontrast: '#ffffff77',
                 hover: '#ffffff10',

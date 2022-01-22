@@ -1,99 +1,57 @@
 <template>
-  <div>
-    <va-divider>
-      <span class="px-2">My projects</span>
-    </va-divider>
+  <div class="dashboard">
+    <div class="tasks-grid">
+      <div class="section-title">
+        Мои задачи
+      </div>
+
+    </div>
     <div class="projects-grid">
-      <va-card v-for="project in project_list" :key="project.id" class="project-card">
-        <va-card-title>
-          {{project.name}}
-        </va-card-title>
-        <va-card-content>
-          <div class="project-card-content">
-            <img class="project-icon" :src="project.logo_small_url"/>
-            <p class="project-description">  {{project.description}} </p>
-          </div>
-        </va-card-content>
-      </va-card>
+      <div class="section-title">
+        Мои проекты
+      </div>
+      <div v-for="project in project_list" :key="project.id" class="project-card">
+        <button class="project-title">
+          <img v-if="project.logo_small_url != null" class="project-icon" :src="project.logo_small_url"/>
+          <img v-else class="project-icon" src="../assets/folder-outline.png"/>
+          <p style="padding-left: 10px"> {{project.name}} </p>
+
+        </button>
+        <p class="project-description">  {{project.description}} </p>
+        <div class="project-totals">
+          <span class="project-total">
+            <i v-if="project.i_am_owner" class="mdi mdi-crown"/>
+            <i v-else-if="project.i_am_admin" class="mdi mdi-crown-outline"/>
+            <i v-else class="mdi mdi-account"/>
+          </span>
+          <span></span>
+          <span class="project-total">
+            <i :class="project.is_fan ? 'mdi mdi-heart' : 'mdi mdi-heart-outline'"/> {{project.total_fans}}
+          </span>
+          <span class="project-total">
+            <i :class="project.is_watcher ? 'mdi mdi-eye' : 'mdi mdi-eye-outline'"/> {{project.total_watchers}}
+          </span>
+          <span class="project-total">
+            <i class="mdi mdi-account-multiple-outline"/> {{project.members.length}}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Мой календарь
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios'
+import cookies from 'js-cookie'
 
 export default {
   data() {
     return {
-      project_list: [
-        {
-          anon_permissions: [],
-          blocked_code: null,
-          created_date: "2020-07-03T08:40:54.649Z",
-          creation_template: 1,
-          default_epic_status: 38,
-          default_issue_status: 59,
-          default_issue_type: 25,
-          default_points: 97,
-          default_priority: 28,
-          default_severity: 45,
-          default_task_status: 43,
-          default_us_status: 49,
-          description: "Beta description",
-          i_am_admin: true,
-          i_am_member: true,
-          i_am_owner: true,
-          id: 9,
-          is_backlog_activated: true,
-          is_contact_activated: true,
-          is_epics_activated: false,
-          is_fan: false,
-          is_featured: false,
-          is_issues_activated: true,
-          is_kanban_activated: false,
-          is_looking_for_people: false,
-          is_private: true,
-          is_watcher: true,
-          is_wiki_activated: true,
-          logo_big_url: null,
-          logo_small_url: null,
-          looking_for_people_note: "",
-          members: [6],
-          modified_date: "2020-07-03T08:40:54.874Z",
-          my_homepage: false,
-          my_permissions: [],
-          name: "Beta project",
-          notify_level: 1,
-          owner: {
-            big_photo: null,
-            full_name_display: "Vanesa Torres",
-            gravatar_id: "b579f05d7d36f4588b11887093e4ce44",
-            id: 6,
-            is_active: true,
-            photo: null,
-            username: "user2114747470430251528",
-          },
-          public_permissions: [],
-          slug: "user2114747470430251528-beta-project",
-          tags: [],
-          tags_colors: {},
-          total_activity: 1,
-          total_activity_last_month: 1,
-          total_activity_last_week: 1,
-          total_activity_last_year: 1,
-          total_closed_milestones: 0,
-          total_fans: 0,
-          total_fans_last_month: 0,
-          total_fans_last_week: 0,
-          total_fans_last_year: 0,
-          total_milestones: null,
-          total_story_points: null,
-          total_watchers: 1,
-          totals_updated_datetime: "2020-07-03T08:40:54.906Z",
-          videoconferences: null,
-          videoconferences_extra_data: null,
-        },
-      ],
+
     }
   },
   computed: {
@@ -103,53 +61,116 @@ export default {
     userId() {
       return this.$store.state.user_detail.id
     },
-    token() {
-      return this.$cookies.get("auth_token")
-    },
-    apiURL() {
-      return this.$cookies.get('api_url')
-    },
+    project_list() {
+      return this.$store.state.project_list
+    }
+  },
+  methods: {
+    getProjectList() {
+      axios
+        .get(cookies.get('api_url') + '/projects?member=' + this.$store.getters.getUserId,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + cookies.get("auth_token")
+            }
+          }
+        )
+        .then(
+          (response) => (this.$store.commit('setProjectList', response.data))
+        )
+    }
   },
   created() {
-    axios
-      .get(this.apiURL + '/projects?member=' + this.userId,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.token
-          }
-        }
-      )
-      .then((response) => (this.project_list = response.data))
+    this.getProjectList()
   },
 }
 </script>
 
 <style scoped>
-.projects-grid {
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  grid-template-areas:  "tasks projects"
+                        "calendar projects"
+}
+
+.section-title {
   display: flex;
-  flex-wrap: wrap;
+  height: 35px;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.tasks-grid {
+  grid-area: tasks;
+}
+
+.projects-grid {
+  grid-area: projects;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
 }
-
 .project-icon {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
 }
-
-.project-card-content {
-  display: flex;
-}
-
 .project-description {
   margin: 5px;
   word-wrap: break-word;
   text-align: left;
+  flex-grow: 1;
+  line-height: 20px;
+}
+.project-totals {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 60px 1fr 60px 60px 60px;
+  height: 30px;
+  align-items: center;
+  justify-content: end;
+  /* font-size: 20px; */
+}
+.project-total {
+  border-radius: 5px;
+  height: 100%;
+  cursor: default;
+  user-select: none;
+  line-height: 30px;
+  font-size: 20px;
+}
+.project-total:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.project-card {
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  background-color: var(--va-appbartrans);
+  min-height: 160px;
+  margin: 10px;
+  padding: 5px;
+}
+.project-title:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.project-title {
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: var(--va-font);
+  font-size: 20px;
+  padding: 8px;
+  align-items: center;
+  text-align: left;
 }
 
-.project-card {
-  min-height: 200px;
-  width: 400px;
-  margin: 10px;
-}
 </style>
