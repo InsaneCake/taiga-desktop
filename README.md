@@ -1,5 +1,7 @@
 # taiga-desktop
 
+Readme edited in Gitea web editor
+
 ## Project setup
 ```
 yarn install
